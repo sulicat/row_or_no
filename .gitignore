@@ -1,0 +1,65 @@
+build/
+sdkconfig
+sdkconfig.old
+
+
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# pipenv / poetry
+Pipfile.lock
+.poetry/
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# Flask instance folder (runtime files)
+instance/
+*.db
+
+# Flask cache
+.flaskenv
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+.pytest_cache/
+
+# MyPy / Pyright / linting
+.mypy_cache/
+.dmypy.json
+pyrightconfig.json
+.pytype/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Byte-compiled / logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db

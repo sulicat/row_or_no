@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RowOrNo - Lake Temperature Monitor</title>
+    <link rel="stylesheet" type="text/css" href="/website/style.css">
+</head>
+
+<body>
+    <nav>
+        <div class="logo">🚣 RowOrNo</div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="showPage('status')">Lake Status</button>
+            <button class="nav-btn" onclick="showPage('hardware')">Hardware Setup</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page 1: Lake Temperature Status -->
+        <div id="status-page" class="page active">
+            <div class="temp-card">
+                <h2>Current Lake Temperature</h2>
+
+                <div class="form-group"
+                    style="max-width: 400px; margin: 0 auto 2rem; animation: slideDown 0.6s ease-out;">
+                    <label for="locationSelect" style="color: #0093E9; font-size: 1.2rem; text-align: center;">📍 Select
+                        Lake Location</label>
+                    <select id="locationSelect" onchange="changeLocation()"
+                        style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border: 3px solid #0093E9; font-weight: 600; color: #333; cursor: pointer;">
+                        <option value="lake1">Emre's Lake House</option>
+                    </select>
+                </div>
+
+                <div class="temp-display" id="temperature"></div>
+                <div class="status good" id="status">Perfect for Rowing! 🚣‍♀️</div>
+
+                <div class="temp-info">
+                    <div class="info-item">
+                        <h3>Ideal Range</h3>
+                        <p>15°C - 25°C</p>
+                    </div>
+                    <div class="info-item">
+                        <h3>Last Updated</h3>
+                        <p id="lastUpdated">Just now</p>
+                    </div>
+                    <div class="info-item">
+                        <h3>Conditions</h3>
+                        <p id="conditions">Excellent</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Page 2: Hardware Programming -->
+        <div id="hardware-page" class="page">
+            <div class="hardware-card">
+                <h2>Hardware Configuration</h2>
+
+                <div
+                    style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 1.5rem; border-radius: 20px; margin-bottom: 2rem; border-left: 5px solid #f5576c;">
+                    <h3 style="color: #d63447; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        🔌 Setup Instructions
+                    </h3>
+                    <p style="color: #333; line-height: 1.6; margin: 0;">
+                        <strong>Step 1:</strong> Connect your temperature sensor device to your computer via USB
+                        port<br>
+                        <strong>Step 2:</strong> Fill out the configuration form below<br>
+                        <strong>Step 3:</strong> Click "Upload Configuration" to program your device
+                    </p>
+                </div>
+
+                <div id="hardwareForm">
+                    <div class="form-group">
+                        <label for="lakeName">Lake Name</label>
+                        <input type="text" id="lakeName" placeholder="My Backyard Lake" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wifiSSID">WiFi Info</label>
+                        <input type="text" id="wifiSSID" placeholder="WiFi SSID" required>
+                        <input type="password" id="wifiPassword" placeholder="WiFi Password" required
+                            style="margin-top: 0.5rem;">
+                    </div>
+                    <div class="form-group">
+                        <label for="updateInterval">Update Interval (minutes)</label>
+                        <input type="number" id="updateInterval" min="5" max="3600" value="60" required>
+                        <div class="info-text">How often should the sensor report temperature?</div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn-primary" onclick="uploadConfig()">🚀 Upload
+                            Configuration</button>
+                    </div>
+                    <div class="success-message" id="successMessage">
+                        ✅ Configuration uploaded successfully! Your device is ready to row!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var lake_temps = {};
+
+        // Page navigation
+        function showPage(page) {
+            const pages = document.querySelectorAll('.page');
+            const buttons = document.querySelectorAll('.nav-btn');
+
+            pages.forEach(p => p.classList.remove('active'));
+            buttons.forEach(b => b.classList.remove('active'));
+
+            if (page === 'status') {
+                document.getElementById('status-page').classList.add('active');
+                buttons[0].classList.add('active');
+            } else {
+                document.getElementById('hardware-page').classList.add('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        // Fetch temperature via POST instead of simulating it
+        async function updateTemperature() {
+
+            const location = document.getElementById('locationSelect').value;
+
+            try {
+                const response = await fetch("/api/get_all_lakes", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ "lake_name": location })
+                });
+
+                const data = await response.json();
+                console.log("update temp", lake_temps, location)
+                lake_temps = data.data;
+                console.log(lake_temps[location])
+                updateDisplay(lake_temps[location].temprature);
+            } catch (err) {
+                console.error("Error getting temperature:", err);
+            }
+        }
+
+        async function updateLakeList() {
+            try {
+                const response = await fetch("/api/get_all_lakes", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const data = await response.json();
+                console.log(data.data)
+
+                lake_temps = data.data;
+                var lakeList = document.querySelector("#locationSelect");
+                lakeList.innerHTML = "";
+                
+                for (const key in data.data) {
+                    lakeList.innerHTML += '<option value="' + key + '">' + key + '</option>'
+                }
+
+                for (const key in data.data) {
+                    lakeList.value = key;
+                    break;
+                }
+
+                updateTemperature();
+            } catch (err) {
+                console.error("Error getting temperature:", err);
+            }
+
+        }
+
+        function updateDisplay(temp) {
+            const tempEl = document.getElementById('temperature');
+            const statusEl = document.getElementById('status');
+            const conditionsEl = document.getElementById('conditions');
+
+            tempEl.textContent = temp + '°C';
+
+            if (temp >= 15 && temp <= 25) {
+                statusEl.textContent = 'Perfect for Rowing! 🚣‍♀️';
+                statusEl.className = 'status good';
+                conditionsEl.textContent = 'Excellent';
+            } else if (temp < 10) {
+                statusEl.textContent = 'Too Cold! ❄️';
+                statusEl.className = 'status bad';
+                conditionsEl.textContent = 'Not Recommended';
+            } else {
+                statusEl.textContent = 'A Bit Warm! ☀️';
+                statusEl.className = 'status bad';
+                conditionsEl.textContent = 'Caution Advised';
+            }
+
+            document.getElementById('lastUpdated').textContent = 'Just now';
+        }
+
+        function changeLocation() {
+            const location = document.getElementById('locationSelect').value;
+            console.log("change location", lake_temps[location].temprature);
+            updateDisplay(lake_temps[location].temprature);
+        }
+
+        async function uploadConfig() {
+            const ssid = document.querySelector("#wifiSSID").value;
+            const pass = document.querySelector("#wifiPassword").value;
+            const rate = document.querySelector("#updateInterval").value;
+            const lake_name = document.querySelector("#lakeName").value;
+            const usbVendorId = 0x1a86;
+
+            console.log("Sending config:", ssid, "...", rate, lake_name);
+
+            if (!("serial" in navigator)) {
+                alert("This browser does not support the Web Serial API.");
+                return;
+            }
+
+            let port;
+            let writer;
+
+            try {
+                // Request + open port
+                port = await navigator.serial.requestPort({
+                    filters: [{ usbVendorId }]
+                });
+
+                await port.open({ baudRate: 115200 });
+
+                // Setup text writer
+                const encoder = new TextEncoderStream();
+                const writerClosed = encoder.readable.pipeTo(port.writable);
+                writer = encoder.writable.getWriter();
+
+                // Build payload
+                const payload =
+                    ssid + "\r" +
+                    pass + "\r" +
+                    rate + "\r" +
+                    lake_name + "\r";
+
+                await writer.write(payload);
+                console.log("Config sent.");
+
+                // ------- CLOSE WRITER -------
+                await writer.close();     // Close writer
+                await writerClosed;       // Wait for stream pipeline to close
+
+                // ------- CLOSE PORT -------
+                await port.close();
+                console.log("Serial port closed.");
+
+            } catch (err) {
+                console.error("Serial error:", err);
+                alert("Error sending config:\n" + err);
+
+                // attempt cleanup on error
+                try { writer?.close(); } catch (_) { }
+                try { port?.close(); } catch (_) { }
+            }
+        }
+
+
+        // Update time display
+        function updateTime() {
+            const now = new Date();
+            const seconds = Math.floor((now - startTime) / 1000);
+            if (seconds < 60) {
+                document.getElementById('lastUpdated').textContent = seconds + ' seconds ago';
+            } else {
+                const minutes = Math.floor(seconds / 60);
+                document.getElementById('lastUpdated').textContent = minutes + ' minute' + (minutes > 1 ? 's' : '') + ' ago';
+            }
+        }
+
+        const startTime = new Date();
+
+        // Form submission
+        document.getElementById('hardwareForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const successMsg = document.getElementById('successMessage');
+            successMsg.style.display = 'block';
+
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        });
+
+        // Update temperature every 30 seconds
+        setInterval(updateTemperature, 30000);
+        setInterval(updateTime, 1000);
+
+        addEventListener("load", (event) => { 
+
+            // get all the lake indo
+            updateLakeList();
+        })
+
+    </script>
+</body>
+
+</html>
