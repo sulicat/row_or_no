@@ -9,6 +9,10 @@ WorkingDirectory=/root/cedarhacks/row_or_no
 ExecStart=/root/cedarhacks/row_or_no/run.sh
 Restart=always
 RestartSec=5
+Environment="SSL_CERT=/etc/letsencrypt/live/yourdomain.com/fullchain.pem"
+Environment="SSL_KEY=/etc/letsencrypt/live/yourdomain.com/privkey.pem"
+
+
 
 # Optional: environment vars
 Environment=PYTHONUNBUFFERED=1

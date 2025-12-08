@@ -1,6 +1,7 @@
 from flask import Flask, request, send_from_directory, jsonify
 from flask_cors import CORS
 import json
+import os
 
 app = Flask(__name__, static_folder="website")
 CORS(app)  # This enables CORS for all routes and origins by default
@@ -71,6 +72,20 @@ def get_all_lakes():
 
 if __name__ == "__main__":
     load_json(file_path)
+    use_ssl = os.getenv("USE_SSL", "1") == "1"
+    
+    if use_ssl:
+        cert = os.getenv("SSL_CERT")
+        key = os.getenv("SSL_KEY")
 
-    # host="0.0.0.0" allows external access; remove for localhost-only
-    app.run(host="0.0.0.0", port=5000, debug=True)
+        if not cert or not key:
+            raise RuntimeError("SSL enabled but SSL_CERT or SSL_KEY not set.")
+
+        ssl_context = (cert, key)
+        print(f"Running with SSL on port 5000")
+    else:
+        ssl_context = None
+        print(f"Running WITHOUT SSL on port 5000")
+
+
+    app.run(host="0.0.0.0", port=5000, debug=True, ssl_context=ssl_context)
