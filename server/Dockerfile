@@ -6,7 +6,7 @@ WORKDIR /app
 RUN python3 -m venv /app/venv
 
 # Install dependencies inside the venv
-RUN /app/venv/bin/pip install --no-cache-dir flask
+RUN /app/venv/bin/pip install --no-cache-dir flask Flask-CORS
 
 # Expose port
 EXPOSE 5000

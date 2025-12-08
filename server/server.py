@@ -1,7 +1,9 @@
 from flask import Flask, request, send_from_directory, jsonify
+from flask_cors import CORS
 import json
 
 app = Flask(__name__, static_folder="website")
+CORS(app)  # This enables CORS for all routes and origins by default
 
 
 # In-memory store (could also be a class member)
