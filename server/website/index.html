@@ -29,7 +29,6 @@
                         Lake Location</label>
                     <select id="locationSelect" onchange="changeLocation()"
                         style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border: 3px solid #0093E9; font-weight: 600; color: #333; cursor: pointer;">
-                        <option value="lake1">Emre's Lake House</option>
                     </select>
                 </div>
 
@@ -126,7 +125,7 @@
             const location = document.getElementById('locationSelect').value;
 
             try {
-                const response = await fetch("/api/get_all_lakes", {
+                const response = await fetch("http://cedarhacks.com:5000/api/get_all_lakes", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -146,7 +145,7 @@
 
         async function updateLakeList() {
             try {
-                const response = await fetch("/api/get_all_lakes", {
+                const response = await fetch("http://cedarhacks.com:5000/api/get_all_lakes", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
