@@ -127,6 +127,7 @@
             try {
                 const response = await fetch("https://cedarhacks.com:5000/api/get_all_lakes", {
                     method: "POST",
+                    mode: "cors",
                     headers: {
                         "Content-Type": "application/json"
                     },
@@ -147,6 +148,7 @@
             try {
                 const response = await fetch("https://cedarhacks.com:5000/api/get_all_lakes", {
                     method: "POST",
+                    mode: "cors",
                     headers: {
                         "Content-Type": "application/json"
                     },
