@@ -68,8 +68,6 @@ def get_all_lakes():
     return {"ok": True, "data": data_store}
 
 
-
-
 if __name__ == "__main__":
     load_json(file_path)
     use_ssl = os.getenv("USE_SSL", "1") == "1"
