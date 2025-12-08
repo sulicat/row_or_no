@@ -1,0 +1,17 @@
+[Unit]
+Description=RowOrNo (Flask in Docker)
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/root/cedarhacks/row_or_no
+ExecStart=/root/cedarhacks/row_or_no/run.sh
+Restart=always
+RestartSec=5
+
+# Optional: environment vars
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
